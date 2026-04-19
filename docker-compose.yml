@@ -1,0 +1,66 @@
+# 用法：
+#   docker compose up -d            首次建置並啟動
+#   docker compose exec dev bash    進入容器 shell
+#   docker compose down             停止並移除容器（保留 volume）
+#   docker compose build --no-cache 強制重新 build image
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: data_sync_cpp_dev:latest
+    container_name: data_sync_cpp_dev
+    hostname: dev
+
+    # 長駐容器，用 exec 進入
+    command: sleep infinity
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    working_dir: /workspace
+
+    volumes:
+      # 專案原始碼（host ↔ container 同步）
+      - .:/workspace
+      # vcpkg binary cache：避免每次重 build 都重編相依套件
+      - vcpkg_binary_cache:/root/.cache/vcpkg
+      # ccache：加速 C++ 增量編譯（可選，需程式自行啟用 CC="ccache gcc"）
+      - ccache:/root/.ccache
+
+    # profile / debug 所需能力
+    # SYS_ADMIN  → perf_event_open、bpftrace 部分 probe
+    # SYS_PTRACE → gdb attach、strace
+    # PERFMON    → bpftrace（kernel 5.8+，比 SYS_ADMIN 細粒度）
+    # BPF        → bpftrace（kernel 5.8+）
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - PERFMON
+      - BPF
+
+    # 放寬 seccomp / apparmor，否則部分 ptrace / bpf syscall 會被擋
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+
+    # （可選）若要 profile host 上其他 process 才開
+    # pid: host
+
+    # （可選）若應用會開網路服務，按需 publish
+    # ports:
+    #   - "8080:8080"
+
+    # 資源限制：dev 容器通常不限，讓它跑滿；需要時再取消註解
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 8g
+    #       cpus: "4"
+
+volumes:
+  vcpkg_binary_cache:
+    name: data_sync_cpp_vcpkg_cache
+  ccache:
+    name: data_sync_cpp_ccache
