@@ -9,6 +9,7 @@ RUN apt-get update && \
 # 建置工具鏈
         build-essential \
         cmake \
+        ninja-build \
         pkg-config \
         zip \
         unzip \

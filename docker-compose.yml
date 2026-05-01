@@ -9,8 +9,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: data_sync_cpp_dev:latest
-    container_name: data_sync_cpp_dev
+    image: cpp_dev:latest
+    container_name: cpp_dev
     hostname: dev
 
     # 長駐容器，用 exec 進入
