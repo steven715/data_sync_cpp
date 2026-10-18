@@ -11,6 +11,8 @@ RUN apt-get update && \
         cmake \
         ninja-build \
         pkg-config \
+# 扁平持倉原型使用 Boost.MultiIndex（header-only）
+        libboost-dev \
         zip \
         unzip \
 # 版本控制
