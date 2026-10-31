@@ -1,5 +1,7 @@
 # 扁平持倉原型（flat position）
 
+> 設計動機與分析（欄位級所有權的問題、barrier 的替代方案、落地順序）見 [`docs/design-notes.md`](../../docs/design-notes.md)。
+
 把風控系統的持倉模型從「物件圖」改成「扁平表 + 索引」的原型，C++14，單執行緒，零鎖。
 
 ## 跟原本的對應
